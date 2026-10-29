@@ -18,6 +18,7 @@ export type DigestRow = {
   owner: string | null; // null renders as '—'
   runs: number; // lines for this job
   retries: number; // lines with status 'retry'
+  fails: number; // lines with status 'fail'
   lastStatus: RunStatus;
   lastError: string | null; // error of the latest line that had one
   firstAt: string;

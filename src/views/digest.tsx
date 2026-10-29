@@ -2,11 +2,22 @@ import type { DigestRow, Night } from '../digest/types.js';
 
 const dash = '—';
 
+// Marked in text as well as colour, so a fetch or a screenshot reads the same (ADR 0001).
+function marks(row: DigestRow): string[] {
+  return [
+    ...(row.fails > 0 ? [`failed ${row.fails}×`] : []),
+    ...(row.retries >= 3 ? [`${row.retries} retries`] : []),
+  ];
+}
+
 function Row({ row }: { row: DigestRow }) {
-  const marked = row.retries >= 3 || row.lastStatus === 'fail';
+  const m = marks(row);
   return (
-    <tr class={marked ? 'warn' : undefined}>
-      <td>{row.job}</td>
+    <tr class={m.length > 0 ? 'warn' : undefined}>
+      <td>
+        {row.job}
+        {m.length > 0 ? ` (${m.join(', ')})` : null}
+      </td>
       <td>{row.owner ?? dash}</td>
       <td>{row.runs}</td>
       <td>{row.retries}</td>
