@@ -50,4 +50,14 @@ describe('readNight', () => {
     expect(readNight(dir, '2026-01-02')).toEqual({ night: '2026-01-02', rows: [], badLines: 3 });
     expect(readNight(dir, '../etc/passwd')).toBeNull();
   });
+
+  it('counts fails even when the job recovers', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rig-runs-'));
+    writeFileSync(
+      join(dir, '2026-01-04.jsonl'),
+      '{"at":"2026-01-04T01:00:00+01:00","job":"j","status":"fail","owner":null,"error":"boom"}\n' +
+        '{"at":"2026-01-04T02:00:00+01:00","job":"j","status":"ok","owner":null}\n',
+    );
+    expect(readNight(dir, '2026-01-04')!.rows[0]).toMatchObject({ fails: 1, lastStatus: 'ok' });
+  });
 });

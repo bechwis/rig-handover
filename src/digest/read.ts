@@ -39,6 +39,7 @@ export function toRows(lines: RunLine[]): DigestRow[] {
         owner: l.owner,
         runs: 1,
         retries: l.status === 'retry' ? 1 : 0,
+        fails: l.status === 'fail' ? 1 : 0,
         lastStatus: l.status,
         lastError: l.error ?? null,
         firstAt: l.at,
@@ -48,6 +49,7 @@ export function toRows(lines: RunLine[]): DigestRow[] {
     }
     r.runs += 1;
     if (l.status === 'retry') r.retries += 1;
+    if (l.status === 'fail') r.fails += 1;
     r.lastStatus = l.status;
     if (l.error !== undefined) r.lastError = l.error;
     if (l.owner !== null) r.owner = l.owner;
