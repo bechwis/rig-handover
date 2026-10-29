@@ -28,6 +28,11 @@ beforeAll(() => {
     join(dir, '2030-01-03.jsonl'),
     [run('2030-01-03T01:00:00+01:00', 'solo', 'ok', null), 'not json at all'].join('\n') + '\n',
   );
+  // failed, then recovered: still marked (any fail), in text as well as colour
+  writeFileSync(
+    join(dir, '2030-01-04.jsonl'),
+    [run('2030-01-04T01:00:00+01:00', 'flaky', 'fail', 'jess', 'down'), run('2030-01-04T02:00:00+01:00', 'flaky', 'ok', 'jess')].join('\n') + '\n',
+  );
   app = createApp({ adapter: 'shim', installed: '2030-01-01T00:00:00+01:00', beatEverySeconds: 60, runsDir: dir });
 });
 
@@ -61,6 +66,12 @@ describe('GET /digest/:night', () => {
     expect(res.status).toBe(200);
     expect(html).toContain('solo');
     expect(html).toContain('1 bad line skipped');
+  });
+
+  it('marks a job that failed and then recovered', async () => {
+    const html = await (await app.request('/digest/2030-01-04')).text();
+    expect(html).toContain('class="warn"');
+    expect(html).toContain('flaky (failed 1×)');
   });
 });
 
