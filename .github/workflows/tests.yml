@@ -1,0 +1,26 @@
+# Team CI template (B1086, B2537). Copy to .github/workflows/tests.yml and change only the last run: line.
+# ci-gate-check.py compares a repo's copy against this file line by line; only that run: line is free.
+# Pull_request-only repos (ci_gate_repos.py) drop the two push lines; check them with --repo <name>.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: npx --yes pnpm@12.16.1 install --frozen-lockfile && npx --yes pnpm@12.16.1 test && npx --yes pnpm@12.16.1 run typecheck
